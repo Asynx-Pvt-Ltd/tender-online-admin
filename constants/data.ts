@@ -154,6 +154,12 @@ export const navItems: NavItem[] = [
     icon: "user",
     label: "userManagement",
   },
+  {
+    title: "Feedback",
+    href: "/dashboard/feedback",
+    icon: "messageSquare",
+    label: "feedback",
+  },
 
   {
     title: "Banner",
