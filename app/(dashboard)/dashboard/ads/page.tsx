@@ -29,11 +29,15 @@ export default function Page() {
     isLoading,
     error,
     refetch,
-  } = useQuery<Ad[]>(["Ads"], () =>
-    fetch(process.env.NEXT_PUBLIC_API_ENPOINT + `/api/ads/images`).then((res) =>
-      res.json(),
-    ),
-  );
+  } = useQuery<Ad[]>(["Ads"], async () => {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_ENPOINT + `/api/ads/images`,
+    );
+    const data = await response.json();
+
+    // Make sure we return an array, even if the API returns something else
+    return Array.isArray(data) ? data : [];
+  });
 
   const deleteAd = useMutation(
     (id: string) =>
@@ -68,7 +72,7 @@ export default function Page() {
 
         <div className="flex items-start justify-between">
           <Heading
-            title={`Ads (${ads?.length || 0})`}
+            title={`Ads (${Array.isArray(ads) ? ads.length : 0})`}
             description="Manage your ads (Server-side table functionalities)."
           />
 
@@ -82,28 +86,34 @@ export default function Page() {
         <Separator />
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {ads?.map((ad) => (
-            <div
-              key={ad._id}
-              className="relative overflow-hidden rounded-lg bg-white shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              <img
-                src={ad.imageUrl}
-                alt={ad.title}
-                className="h-48 w-full object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold">{ad.title}</h3>
-                <p className="text-sm text-gray-600">{ad.description}</p>
-              </div>
-              <button
-                onClick={() => deleteAd.mutate(ad._id)}
-                className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
+          {Array.isArray(ads) && ads.length > 0 ? (
+            ads.map((ad) => (
+              <div
+                key={ad._id}
+                className="relative overflow-hidden rounded-lg bg-white shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-lg"
               >
-                <Trash2 className="h-4 w-4" />
-              </button>
+                <img
+                  src={ad.imageUrl}
+                  alt={ad.title}
+                  className="h-48 w-full object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold">{ad.title}</h3>
+                  <p className="text-sm text-gray-600">{ad.description}</p>
+                </div>
+                <button
+                  onClick={() => deleteAd.mutate(ad._id)}
+                  className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full py-8 text-center">
+              <p className="text-gray-500">No ads available</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </>
