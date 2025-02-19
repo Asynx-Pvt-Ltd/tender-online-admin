@@ -81,7 +81,7 @@ const TenderDetailsDialog = ({ selectedRowData, setSelectedRowData }: any) => {
         <div className="px-0 py-2 lg:px-4 ">
           <div className="rounded-3xl bg-[#000000] px-2 py-4 lg:px-4">
             <div className="flex w-full flex-wrap items-center justify-between lg:flex-row">
-              <div className="flex  items-center gap-2">
+              <div className="flex items-center gap-2">
                 <div className="">
                   <svg
                     width="19"
@@ -409,7 +409,7 @@ const TenderDetailsDialog = ({ selectedRowData, setSelectedRowData }: any) => {
                 />
               </svg>
               <p className="text-[10px] lg:text-sm">
-                {selectedRowData?.address}
+                {selectedRowData?.location}
               </p>
             </div>
             <div className="flex items-center justify-center gap-2 border-b py-4 text-black">

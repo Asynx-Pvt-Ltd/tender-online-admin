@@ -128,22 +128,17 @@ export default function TenderColumns() {
         );
       },
     },
+
     {
-      accessorKey: "epublishedDate",
+      accessorKey: "sub-industry",
       header: ({ column }) => (
-        <Button
-          className="text-xs text-gray-500"
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          title="Sort by Published Date"
-        >
-          Published Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="ml-3 text-xs text-gray-500" title="Sub-Industry">
+          Sub-Industry
+        </div>
       ),
       cell: ({ row }) => (
-        <div className="w-32 text-center text-xs" title="Published Date">
-          {formatDate(row.getValue("epublishedDate"))}
+        <div className="line-clamp-2 text-center text-xs" title="Sub-Industry">
+          {row.original.subIndustry}
         </div>
       ),
     },
@@ -161,40 +156,37 @@ export default function TenderColumns() {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="w-32 text-center text-xs" title="Bid Submission Date">
+        <div
+          className="ml-3 w-32 text-center text-xs"
+          title="Bid Submission Date"
+        >
           {formatDate(row.getValue("bidSubmissionDate"))}
         </div>
       ),
     },
     {
-      accessorKey: "bidOpeningDate",
+      accessorKey: "district",
       header: ({ column }) => (
-        <Button
-          className="text-xs text-gray-500"
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          title="Sort by Bid Opening Date"
-        >
-          Bid Opening Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="ml-4 text-xs text-gray-500" title="District">
+          District
+        </div>
       ),
       cell: ({ row }) => (
-        <div className="w-32 text-center text-xs" title="Bid Opening Date">
-          {formatDate(row.getValue("bidOpeningDate"))}
+        <div className="line-clamp-2 text-center text-xs" title="District">
+          {row.getValue("district")}
         </div>
       ),
     },
     {
-      accessorKey: "refNo",
+      accessorKey: "emdValue",
       header: ({ column }) => (
-        <div className="ml-3 text-xs text-gray-500" title="Reference No">
-          Reference No
+        <div className="ml-3 text-xs text-gray-500" title="EMD Value">
+          EMD Value
         </div>
       ),
       cell: ({ row }) => (
-        <div className="line-clamp-2 text-center text-xs" title="Reference No">
-          {row.getValue("refNo")}
+        <div className="line-clamp-2 text-center text-xs" title="EMD Value">
+          {row.original.EMDAmountin}
         </div>
       ),
     },
@@ -212,7 +204,7 @@ export default function TenderColumns() {
         </Button>
       ),
       cell: ({ row }) => (
-        <div title="Tender Value (₹)">
+        <div title="Tender Value (₹)" className="text-center">
           {formatIndianRupeePrice(row.getValue("tenderValue"))}
         </div>
       ),
