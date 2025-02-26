@@ -28,7 +28,7 @@ import Loading from "../ui/loading";
 import TenderDetailsDialog from "../shared/TenderDetailsDialog";
 import TenderColumns from "./tender-columns";
 import { toast } from "sonner";
-import { getTenderValueCategory } from "@/utils/tender-value";
+import { getTenderValueCategory } from "@/utils/utils";
 import { clear } from "console";
 
 export function DataTableTender({ setSearch, search, setTenderLength }: any) {

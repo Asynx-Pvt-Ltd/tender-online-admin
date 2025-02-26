@@ -42,3 +42,14 @@ export const formatTenderValue = (value: string): string => {
   const category = getTenderValueCategory(value);
   return categories[category] || value;
 };
+
+export const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
