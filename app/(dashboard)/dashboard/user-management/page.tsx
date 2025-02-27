@@ -15,6 +15,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import axios from "axios";
 import { Toast } from "@/components/ui/toast";
@@ -96,6 +98,8 @@ export default function Page({ searchParams }: ParamsProps) {
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
 
   const page = Number(searchParams.page) || 1;
   const pageLimit = Number(searchParams.limit) || 10;
@@ -145,9 +149,11 @@ export default function Page({ searchParams }: ParamsProps) {
     onSuccess: () => {
       queryClient.invalidateQueries("users");
       toast({ title: "User deleted successfully" });
+      setIsDeleteModalOpen(false);
     },
     onError: () => {
       toast({ title: "Failed to delete user", variant: "destructive" });
+      setIsDeleteModalOpen(false);
     },
   });
 
@@ -159,6 +165,23 @@ export default function Page({ searchParams }: ParamsProps) {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
+  };
+
+  const openDeleteConfirmation = (userId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setUserToDelete(userId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (userToDelete) {
+      deleteUserMutation.mutate(userToDelete);
+    }
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setUserToDelete(null);
   };
 
   if (!data) return <div>Loading...</div>;
@@ -238,7 +261,10 @@ export default function Page({ searchParams }: ParamsProps) {
                   <td className="flex space-x-2 border-b px-4 py-2">
                     <Button
                       variant="outline"
-                      onClick={() => handletoStatusUser(user._id, user.status)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handletoStatusUser(user._id, user.status);
+                      }}
                       className="mr-2"
                     >
                       {user.status === "active" ? "Deactivate" : "Activate"}
@@ -246,10 +272,7 @@ export default function Page({ searchParams }: ParamsProps) {
 
                     <Button
                       variant="destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteUserMutation.mutate(user._id);
-                      }}
+                      onClick={(e) => openDeleteConfirmation(user._id, e)}
                     >
                       Delete
                     </Button>
@@ -294,6 +317,33 @@ export default function Page({ searchParams }: ParamsProps) {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={isDeleteModalOpen} onOpenChange={closeDeleteModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this user? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-start">
+            <div className="flex w-full justify-between space-x-2">
+              <Button variant="outline" onClick={closeDeleteModal}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleConfirmDelete}
+                disabled={deleteUserMutation.isLoading}
+              >
+                {deleteUserMutation.isLoading ? "Deleting..." : "Delete User"}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
