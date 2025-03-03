@@ -199,11 +199,18 @@ export default function Page({ searchParams }: ParamsProps) {
             title={`All User  (${data?.length || 0})`}
             description="Manage all users, view their details and update statuses."
           />
-          <Link href="/dashboard/user-management/create">
-            <Button className={cn(buttonVariants(), "ml-auto")}>
-              <Plus className="mr-2 h-4 w-4" /> Add User
-            </Button>
-          </Link>
+          <div className="flex space-x-2">
+            <Link href="/dashboard/deleted-user">
+              <Button variant="outline" className="mr-2">
+                View Deleted Users
+              </Button>
+            </Link>
+            <Link href="/dashboard/user-management/create">
+              <Button className={cn(buttonVariants(), "ml-auto")}>
+                <Plus className="mr-2 h-4 w-4" /> Add User
+              </Button>
+            </Link>
+          </div>
         </div>
         <Separator />
         {/*  add search  */}
