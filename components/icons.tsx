@@ -37,6 +37,7 @@ import {
   X,
   Search,
   MessageSquare,
+  Bookmark,
 } from "lucide-react";
 
 export type Icon = LucideIcon;
@@ -77,6 +78,7 @@ export const Icons = {
   laptop: Laptop,
   search: Search,
   messageSquare: MessageSquare,
+  bookmark: Bookmark,
   gitHub: ({ ...props }: LucideProps) => (
     <svg
       aria-hidden="true"

@@ -160,7 +160,12 @@ export const navItems: NavItem[] = [
     icon: "messageSquare",
     label: "feedback",
   },
-
+  {
+    title: "Saved Tenders by User",
+    href: "/dashboard/saved-tenders",
+    icon: "bookmark",
+    label: "feedback",
+  },
   {
     title: "Banner",
     href: "/dashboard/banner",
