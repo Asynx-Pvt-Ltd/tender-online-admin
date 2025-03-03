@@ -164,7 +164,7 @@ export const navItems: NavItem[] = [
     title: "Saved Tenders by User",
     href: "/dashboard/saved-tenders",
     icon: "bookmark",
-    label: "feedback",
+    label: "savedTenders",
   },
   {
     title: "Banner",
