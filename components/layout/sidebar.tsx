@@ -6,7 +6,7 @@ export default function Sidebar() {
   return (
     <nav
       className={cn(
-        `fixed hidden h-screen max-w-[15%] border-r pt-16 lg:block`,
+        `fixed hidden h-screen max-w-[15%] overflow-y-scroll border-r pt-16 lg:block`,
       )}
     >
       <div className="space-y-4 py-4">
