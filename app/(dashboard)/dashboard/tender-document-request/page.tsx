@@ -274,6 +274,7 @@ function DataTableDemo({ data }: any) {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    manualPagination: false,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -376,12 +377,13 @@ function DataTableDemo({ data }: any) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="text-center text-sm text-muted-foreground">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
         </div>
-        <div className="space-x-2">
+
+        <div className="flex items-center justify-center space-x-2 py-4">
           <Button
             variant="outline"
             size="sm"
@@ -390,6 +392,31 @@ function DataTableDemo({ data }: any) {
           >
             Previous
           </Button>
+
+          {Array.from({ length: table.getPageCount() }, (_, i) => i)
+            .filter((pageIndex) => {
+              const currentPage = table.getState().pagination.pageIndex;
+              return (
+                pageIndex === currentPage ||
+                pageIndex === currentPage + 1 ||
+                pageIndex === currentPage + 2
+              );
+            })
+            .map((pageIndex) => (
+              <Button
+                key={pageIndex}
+                variant={
+                  table.getState().pagination.pageIndex === pageIndex
+                    ? "default"
+                    : "outline"
+                }
+                size="sm"
+                onClick={() => table.setPageIndex(pageIndex)}
+              >
+                {pageIndex + 1}
+              </Button>
+            ))}
+
           <Button
             variant="outline"
             size="sm"
