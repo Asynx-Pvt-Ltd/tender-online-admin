@@ -1,5 +1,6 @@
 "use client";
 
+import { Download } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { useQuery } from "react-query";
 import * as XLSX from "xlsx";
@@ -181,23 +182,10 @@ const TransactionPage: React.FC = () => {
           </div>
           <button
             onClick={downloadExcel}
-            className="flex items-center rounded-lg bg-[#222222] px-4 py-3 text-white shadow transition hover:bg-gray-700 disabled:bg-gray-400"
+            className="flex items-center gap-3 rounded-lg bg-[#222222] px-4 py-3 text-white shadow transition hover:bg-gray-700 disabled:bg-gray-400"
             disabled={!filteredTransactions.length}
           >
-            <svg
-              className="mr-2 h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
+            <Download size={16} />
             Download Excel
           </button>
         </div>
