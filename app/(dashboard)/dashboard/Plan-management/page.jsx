@@ -76,6 +76,7 @@ const Page = () => {
         }
 
         const data = await response.json();
+        console.log("===========================", data);
         setUsers(data || []);
         setLoading(false);
       } catch (error) {
@@ -136,21 +137,21 @@ const Page = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex items-center justify-center h-screen">
         Loading users...
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto bg-white px-6 py-6 dark:bg-gray-900">
+    <div className="container px-6 py-6 mx-auto bg-white dark:bg-gray-900">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           User Subscription Management
         </h1>
       </div>
 
-      <div className="mb-6 flex space-x-4">
+      <div className="flex mb-6 space-x-4">
         <div className="relative flex-grow">
           <Input
             placeholder="Search by name or client ID"
@@ -206,16 +207,18 @@ const Page = () => {
         </Popover>
       </div>
 
-      <div className="rounded-lg bg-gray-50 shadow-md dark:bg-gray-800">
+      <div className="rounded-lg shadow-md bg-gray-50 dark:bg-gray-800">
         <ScrollArea className="w-full">
           <Table className="w-full">
             <TableHeader className="bg-gray-100 dark:bg-gray-700">
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>ClientID</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Plan</TableHead>
                 <TableHead>Subscription Status</TableHead>
                 <TableHead>Valid Until</TableHead>
+                <TableHead>Last Subscription Date</TableHead>
                 <TableHead>Actions</TableHead>
                 <TableHead>Subscription History</TableHead>
               </TableRow>
@@ -228,13 +231,14 @@ const Page = () => {
                 >
                   <TableCell>{user.name || "N/A"}</TableCell>
                   <TableCell>{user.clientId || "N/A"}</TableCell>
+                  <TableCell>{user.email || "N/A"}</TableCell>
                   <TableCell>{user?.subscriptionAmount || "N/A"}</TableCell>
                   <TableCell>
                     <Badge
                       variant={getPaymentStatus(
                         (user.paymentStatus || "").toLowerCase(),
                       )}
-                      className="uppercase tracking-wider"
+                      className="tracking-wider uppercase"
                     >
                       {user.paymentStatus || "N/A"}
                     </Badge>
@@ -243,6 +247,11 @@ const Page = () => {
                     {user.subscriptionValidity
                       ? formatDate(user.subscriptionValidity)
                       : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    {user.lastSubscriptionDate
+                      ? formatDate(user.lastSubscriptionDate)
+                      : "NA"}
                   </TableCell>
 
                   <TableCell>
