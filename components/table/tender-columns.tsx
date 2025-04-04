@@ -2,9 +2,21 @@
 
 import { useRouter } from "next/router";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Your format functions (unchanged)
 export const formatDate = (isoDateString: string): string => {
@@ -63,9 +75,42 @@ export function formatIndianRupeePrice(amount: any): string {
   return `₹${formatWithUnits(numAmount)}`;
 }
 
-export default function TenderColumns() {
-  // const router = useRouter();
-  // const isForYou = router.query.foryou === "true"; // Check if the query parameter is present
+export default function TenderColumns({
+  refetchTenders,
+}: {
+  refetchTenders: () => void;
+}) {
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingId) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_ENPOINT}/api/tender/${deletingId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        toast.success("Tender deleted successfully");
+        refetchTenders(); // Trigger refetch after successful deletion
+      } else {
+        toast.error("Failed to delete tender");
+      }
+    } catch (error) {
+      console.error("Error deleting tender:", error);
+      toast.error("Failed to delete tender");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setDeletingId(null);
+    }
+  };
 
   const columns: ColumnDef<any>[] = [
     {
@@ -224,6 +269,53 @@ export default function TenderColumns() {
 
         return valueA - valueB;
       },
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-xs text-gray-500">Actions</div>,
+      cell: ({ row }) => (
+        <>
+          <div className="flex justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeletingId(row.original._id);
+                setIsDeleteDialogOpen(true);
+              }}
+              className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-600"
+              title="Delete tender"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <AlertDialog
+            open={isDeleteDialogOpen && deletingId === row.original._id}
+            onOpenChange={setIsDeleteDialogOpen}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  this tender from the database.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteConfirm}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      ),
     },
   ];
 
