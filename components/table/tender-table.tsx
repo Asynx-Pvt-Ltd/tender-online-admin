@@ -31,6 +31,8 @@ import { toast } from "sonner";
 import { getTenderValueCategory } from "@/utils/utils";
 import { clear } from "console";
 import { Input } from "@/components/ui/input";
+import * as XLSX from "xlsx";
+import { Download } from "lucide-react";
 
 export function DataTableTender({ setSearch, search, setTenderLength }: any) {
   const [foryou, setForYou] = React.useState<any | null>(null);
@@ -276,6 +278,56 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
     }
   };
 
+  {
+    /* 
+  const downloadExcel = () => {
+    if (!tenders?.result?.length) return;
+
+    const excelData = tenders.result.map((tender: any) => ({
+      "Tender ID": tender.TenderId || "",
+      Title: tender.tenderName || "",
+      "Work Description": tender.WorkDescription || "",
+      Address: tender.address || "",
+      Department: tender.department || "",
+      District: tender.district || "",
+      "Due Date": tender.bidSubmissionDate
+        ? new Date(tender.bidSubmissionDate).toLocaleDateString()
+        : "",
+      "Published Date": tender.epublishedDate
+        ? new Date(tender.epublishedDate).toLocaleDateString()
+        : "",
+      "Tender Value": tender.tenderValue || "",
+      Classification: tender.classification || "",
+      Industry: tender.industry || "",
+      EMD: tender.EMDAmountin || "",
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const columnWidths = [
+      { wch: 15 },
+      { wch: 40 },
+      { wch: 40 },
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 15 },
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tenders");
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `tenders_export_${currentDate}.xlsx`);
+  };*/
+  }
+
   return (
     <div className="w-full rounded-xl border">
       <div className="flex items-start justify-between px-2 py-2">
@@ -299,6 +351,14 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-sm"
           />
+          {/* <Button
+            onClick={downloadExcel}
+            className="flex items-center gap-2 bg-[#222222] text-xs text-white hover:bg-gray-700"
+            disabled={!tenders?.result?.length}
+          >
+            <Download size={14} />
+            Export Excel
+          </Button> */}
         </div>
         <ScrollArea>
           <Table>
