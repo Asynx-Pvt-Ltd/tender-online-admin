@@ -84,27 +84,27 @@ export default function Page({ searchParams }: paramsProps) {
       <div className="flex-1 space-y-4  p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
 
-        <ScrollArea className="h-[80vh]">
-          <div className="flex items-start justify-between space-x-4">
-            <Heading
-              title={`Tender Documents Request (${totalUsers})`}
-              description="List of all tender documents request"
-            />
-            <Button
-              onClick={downloadExcel}
-              className="flex items-center gap-2 bg-[#222222] text-white hover:bg-gray-700"
-              disabled={!tender?.mappings?.length}
-            >
-              <Download size={16} />
-              Export Excel
-            </Button>
-          </div>
-          <Separator />
-          <div className="">
-            <DataTableDemo data={tender?.mappings} />
-            {/* <Documents data={tender?.mappings} /> */}
-          </div>
-        </ScrollArea>
+        {/* <ScrollArea className="h-[80vh]"> */}
+        <div className="flex items-start justify-between space-x-4">
+          <Heading
+            title={`Tender Documents Request (${totalUsers})`}
+            description="List of all tender documents request"
+          />
+          <Button
+            onClick={downloadExcel}
+            className="flex items-center gap-2 bg-[#222222] text-white hover:bg-gray-700"
+            disabled={!tender?.mappings?.length}
+          >
+            <Download size={16} />
+            Export Excel
+          </Button>
+        </div>
+        <Separator />
+        <div className="">
+          <DataTableDemo data={tender?.mappings} />
+          {/* <Documents data={tender?.mappings} /> */}
+        </div>
+        {/* </ScrollArea> */}
       </div>
     </>
   );
@@ -326,7 +326,7 @@ function DataTableDemo({ data }: any) {
           </DropdownMenuContent>
         </DropdownMenu> */}
       </div>
-      <div className="rounded-md border">
+      <div className="overflow-y-scroll rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
