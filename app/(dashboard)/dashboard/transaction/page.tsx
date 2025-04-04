@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useQuery } from "react-query";
+import * as XLSX from "xlsx";
 
 interface User {
   _id: string;
@@ -44,7 +45,6 @@ const TransactionPage: React.FC = () => {
       }),
   });
 
-  // Filtered transactions based on search term
   const filteredTransactions = useMemo(() => {
     if (!data) return [];
     if (!searchTerm.trim()) return data;
@@ -67,6 +67,64 @@ const TransactionPage: React.FC = () => {
         transaction.userId?.email.toLowerCase().includes(lowerCaseSearchTerm),
     );
   }, [data, searchTerm]);
+
+  const downloadExcel = () => {
+    if (!filteredTransactions.length) return;
+
+    const excelData = filteredTransactions.map((transaction) => ({
+      "Transaction ID": transaction._id,
+      "Customer Name": transaction.userId?.name || "N/A",
+      "Company Name": transaction.userId?.companyName || "N/A",
+      Email: transaction.userId?.email || "N/A",
+      Phone: transaction.userId?.phone || "N/A",
+      Location: `${transaction.userId?.city || "N/A"}, ${
+        transaction.userId?.state?.join(", ") || "N/A"
+      }`,
+      "Amount Received": transaction.amount_received,
+      Price: transaction.price,
+      "Payment Method": transaction.payment_method,
+      Status: transaction.transaction_status,
+      "Discount Applied": parseFloat(
+        transaction.discount_applied?.$numberDecimal || "0",
+      ),
+      "Tax Amount": parseFloat(transaction.tax_amount?.$numberDecimal || "0"),
+      "Total Amount Paid": parseFloat(
+        transaction.total_amount_paid?.$numberDecimal || "0",
+      ),
+      "Payment Date": new Date(transaction.payment_date).toLocaleString(),
+      "Subscription Valid Till": new Date(
+        transaction.userId?.subscriptionValidity,
+      ).toLocaleDateString(),
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Set column widths
+    const columnWidths = [
+      { wch: 24 }, // Transaction ID
+      { wch: 20 }, // Customer Name
+      { wch: 20 }, // Company Name
+      { wch: 25 }, // Email
+      { wch: 15 }, // Phone
+      { wch: 20 }, // Location
+      { wch: 15 }, // Amount Received
+      { wch: 10 }, // Price
+      { wch: 15 }, // Payment Method
+      { wch: 12 }, // Status
+      { wch: 15 }, // Discount Applied
+      { wch: 12 }, // Tax Amount
+      { wch: 15 }, // Total Amount Paid
+      { wch: 20 }, // Payment Date
+      { wch: 20 }, // Subscription Valid Till
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `transactions_${currentDate}.xlsx`);
+  };
 
   if (isLoading) {
     return (
@@ -95,17 +153,39 @@ const TransactionPage: React.FC = () => {
       </h1>
 
       <div className="mx-auto mb-6 max-w-2xl">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search by Name, Transaction ID, Email or Status..."
-            className="w-full rounded-lg border border-gray-300 p-3 pl-10 shadow-sm focus:border-[#222222] focus:outline-none focus:ring-1 focus:ring-[#222222]"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+        <div className="flex items-center justify-between">
+          <div className="relative mr-4 flex-grow">
+            <input
+              type="text"
+              placeholder="Search by Name, Transaction ID, Email or Status..."
+              className="w-full rounded-lg border border-gray-300 p-3 pl-10 shadow-sm focus:border-[#222222] focus:outline-none focus:ring-1 focus:ring-[#222222]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+          </div>
+          <button
+            onClick={downloadExcel}
+            className="flex items-center rounded-lg bg-[#222222] px-4 py-3 text-white shadow transition hover:bg-gray-700 disabled:bg-gray-400"
+            disabled={!filteredTransactions.length}
+          >
             <svg
-              className="h-5 w-5 text-gray-400"
+              className="mr-2 h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -115,10 +195,11 @@ const TransactionPage: React.FC = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
               />
             </svg>
-          </div>
+            Download Excel
+          </button>
         </div>
       </div>
 
