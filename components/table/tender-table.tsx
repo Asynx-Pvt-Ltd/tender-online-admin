@@ -30,6 +30,7 @@ import TenderColumns from "./tender-columns";
 import { toast } from "sonner";
 import { getTenderValueCategory } from "@/utils/utils";
 import { clear } from "console";
+import { Input } from "@/components/ui/input";
 
 export function DataTableTender({ setSearch, search, setTenderLength }: any) {
   const [foryou, setForYou] = React.useState<any | null>(null);
@@ -42,6 +43,7 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [selectedRowData, setSelectedRowData] = React.useState(null);
   const [selectedRow, setSelectedRow] = React.useState<any>([]);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -51,6 +53,21 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
       else setForYou(false);
     }
   }, []);
+  React.useEffect(() => {
+    if (searchQuery.trim()) {
+      setColumnFilters((prev) => [
+        ...prev.filter((filter) => filter.id !== "TenderId"),
+        {
+          id: "TenderId",
+          value: searchQuery,
+        },
+      ]);
+    } else {
+      setColumnFilters((prev) =>
+        prev.filter((filter) => filter.id !== "TenderId"),
+      );
+    }
+  }, [searchQuery]);
 
   const {
     districts,
@@ -275,6 +292,14 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
       </div>
 
       <div className="w-full">
+        <div className="mb-4 ml-4 flex items-center gap-2">
+          <Input
+            placeholder="Search by Tender ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
         <ScrollArea>
           <Table>
             <TableHeader>

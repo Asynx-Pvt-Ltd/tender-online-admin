@@ -173,6 +173,24 @@ export default function TenderColumns({
         );
       },
     },
+    {
+      accessorKey: "TenderId", // Note: This should match the property name from your data
+      header: ({ column }) => (
+        <div className="ml-4 text-xs text-gray-500" title="Tender ID">
+          Tender ID
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div className="line-clamp-2 text-center text-xs" title="Tender ID">
+          {row.original.TenderId}
+        </div>
+      ),
+      filterFn: (row, id, value) => {
+        return String(row.getValue(id))
+          .toLowerCase()
+          .includes(String(value).toLowerCase());
+      },
+    },
 
     {
       accessorKey: "bidSubmissionDate",
