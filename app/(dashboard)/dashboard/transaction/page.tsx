@@ -8,6 +8,7 @@ import * as XLSX from "xlsx";
 interface User {
   _id: string;
   name: string;
+  clientId: string;
   phone: string;
   email: string;
   profile_image: string;
@@ -20,6 +21,7 @@ interface User {
 interface Transaction {
   _id: string;
   userId: User;
+  clientId: string;
   amount_received: number;
   price: number;
   payment_method: string;
@@ -56,6 +58,9 @@ const TransactionPage: React.FC = () => {
       (transaction) =>
         transaction._id.toLowerCase().includes(lowerCaseSearchTerm) ||
         transaction.userId?.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+        transaction.userId?.clientId
+          .toLowerCase()
+          .includes(lowerCaseSearchTerm) ||
         transaction.userId?.companyName
           .toLowerCase()
           .includes(lowerCaseSearchTerm) ||
@@ -75,6 +80,7 @@ const TransactionPage: React.FC = () => {
     const excelData = filteredTransactions.map((transaction) => ({
       "Transaction ID": transaction._id,
       "Customer Name": transaction.userId?.name || "N/A",
+      "Client ID": transaction.userId?.clientId || "N/A",
       "Company Name": transaction.userId?.companyName || "N/A",
       Email: transaction.userId?.email || "N/A",
       Phone: transaction.userId?.phone || "N/A",
@@ -101,10 +107,10 @@ const TransactionPage: React.FC = () => {
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    // Set column widths
     const columnWidths = [
       { wch: 24 }, // Transaction ID
       { wch: 20 }, // Customer Name
+      { wch: 20 }, // Client ID
       { wch: 20 }, // Company Name
       { wch: 25 }, // Email
       { wch: 15 }, // Phone
@@ -218,7 +224,8 @@ const TransactionPage: React.FC = () => {
                   <p className="text-sm text-gray-600">
                     {transaction.userId?.companyName} |{" "}
                     {transaction.userId?.city},{" "}
-                    {transaction.userId?.state.join(", ")}
+                    {transaction.userId?.state.join(", ")} |{" "}
+                    {transaction.userId?.clientId}
                   </p>
                   <p className="text-sm text-gray-500">
                     Subscription valid till:{" "}
