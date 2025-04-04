@@ -32,7 +32,6 @@ import { getTenderValueCategory } from "@/utils/utils";
 import { clear } from "console";
 
 export function DataTableTender({ setSearch, search, setTenderLength }: any) {
-  const columns = TenderColumns();
   const [foryou, setForYou] = React.useState<any | null>(null);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -140,6 +139,7 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
       return response.json();
     },
   });
+  const columns = TenderColumns({ refetchTenders: refetch });
 
   const clearFilters = useCallback(() => {
     // Reset all state variables to their initial values
@@ -154,8 +154,10 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
     refetch();
   }, [refetch]); // Add refetch to dependency array
 
-  const handleRowClick = useCallback((rowData: any) => {
-    setSelectedRowData(rowData);
+  const handleRowClick = useCallback((rowData: any, isActionClick: boolean) => {
+    if (!isActionClick) {
+      setSelectedRowData(rowData);
+    }
   }, []);
 
   const table = useReactTable({
@@ -303,8 +305,11 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
                         key={cell.id}
                         className="font-roboto cursor-pointer"
                         onClick={() => {
-                          if (cell.column.columnDef.id !== "select") {
-                            handleRowClick(row.original);
+                          if (
+                            cell.column.columnDef.id !== "select" &&
+                            cell.column.columnDef.id !== "actions"
+                          ) {
+                            handleRowClick(row.original, false);
                           }
                         }}
                       >
