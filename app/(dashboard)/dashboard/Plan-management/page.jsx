@@ -25,7 +25,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-import { Dot, Ban, Search, Filter, Calendar } from "lucide-react";
+import { Dot, Ban, Search, Filter, Calendar, Download } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 
 import SubscriptionCancel from "@/components/subscriptionCancel";
+import * as XLSX from "xlsx";
 
 const Page = () => {
   const [users, setUsers] = useState([]);
@@ -137,21 +138,58 @@ const Page = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         Loading users...
       </div>
     );
   }
 
+  const downloadExcel = () => {
+    if (!filteredUsers.length) return;
+
+    const excelData = filteredUsers.map((user) => ({
+      Name: user.name || "N/A",
+      "Client ID": user.clientId || "N/A",
+      Email: user.email || "N/A",
+      Plan: user.subscriptionAmount || "N/A",
+      "Subscription Status": user.paymentStatus || "N/A",
+      "Valid Until": user.subscriptionValidity
+        ? formatDate(user.subscriptionValidity)
+        : "N/A",
+      "Last Subscription Date": user.lastSubscriptionDate
+        ? formatDate(user.lastSubscriptionDate)
+        : "N/A",
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const columnWidths = [
+      { wch: 20 }, // Name
+      { wch: 15 }, // Client ID
+      { wch: 25 }, // Email
+      { wch: 10 }, // Plan
+      { wch: 18 }, // Subscription Status
+      { wch: 30 }, // Valid Until
+      { wch: 30 }, // Last Subscription Date
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Subscriptions");
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `subscriptions_${currentDate}.xlsx`);
+  };
+
   return (
-    <div className="container px-6 py-6 mx-auto bg-white dark:bg-gray-900">
+    <div className="container mx-auto bg-white px-6 py-6 dark:bg-gray-900">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           User Subscription Management
         </h1>
       </div>
 
-      <div className="flex mb-6 space-x-4">
+      <div className="mb-6 flex space-x-4">
         <div className="relative flex-grow">
           <Input
             placeholder="Search by name or client ID"
@@ -205,9 +243,17 @@ const Page = () => {
             />
           </PopoverContent>
         </Popover>
+        <Button
+          onClick={downloadExcel}
+          className="flex items-center gap-2 bg-[#222222] text-white hover:bg-gray-700"
+          disabled={!filteredUsers.length}
+        >
+          <Download size={16} />
+          Download Excel
+        </Button>
       </div>
 
-      <div className="rounded-lg shadow-md bg-gray-50 dark:bg-gray-800">
+      <div className="rounded-lg bg-gray-50 shadow-md dark:bg-gray-800">
         <ScrollArea className="w-full">
           <Table className="w-full">
             <TableHeader className="bg-gray-100 dark:bg-gray-700">
@@ -238,7 +284,7 @@ const Page = () => {
                       variant={getPaymentStatus(
                         (user.paymentStatus || "").toLowerCase(),
                       )}
-                      className="tracking-wider uppercase"
+                      className="uppercase tracking-wider"
                     >
                       {user.paymentStatus || "N/A"}
                     </Badge>
