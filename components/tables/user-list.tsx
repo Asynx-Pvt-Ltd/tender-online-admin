@@ -145,7 +145,7 @@ const UserList: React.FC<UserListProps> = ({
             activeTab === "contacted" ? "bg-black text-white" : "text-gray-600",
           )}
         >
-          Contacted Entries
+          Support - Contacted Entries
         </button>
         <button
           onClick={() => setActiveTab("get-in-touch")}
@@ -167,7 +167,7 @@ const UserList: React.FC<UserListProps> = ({
               : "text-gray-600",
           )}
         >
-          Contacted Entries
+          Get in Touch - Contacted Entries
         </button>
       </div>
       {activeTab === "support" && (
