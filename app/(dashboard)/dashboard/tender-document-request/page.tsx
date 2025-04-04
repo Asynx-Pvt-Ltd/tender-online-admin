@@ -7,6 +7,8 @@ import { Heading } from "@/components/ui/heading";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import * as XLSX from "xlsx";
+import { Download } from "lucide-react";
 
 const breadcrumbItems = [
   {
@@ -41,6 +43,41 @@ export default function Page({ searchParams }: paramsProps) {
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error fetching data</div>;
   const totalUsers = tender?.mappings?.length ?? 0;
+  const downloadExcel = () => {
+    if (!tender?.mappings?.length) return;
+
+    const excelData = tender.mappings.map((item: any) => ({
+      "Tender Title": item.tenderTitle,
+      "Tender Id": item.tenderId,
+      "Client Id": item.userId?.clientId,
+      "Contact Person": item.userId?.name,
+      Phone: item.userId?.phone,
+      Email: item.userId?.email,
+      "Requested On": new Date(item.createdAt).toLocaleDateString(),
+      Remarks: item.note || "",
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Set column widths
+    const columnWidths = [
+      { wch: 30 }, // Tender Title
+      { wch: 15 }, // Tender Id
+      { wch: 15 }, // Client Id
+      { wch: 20 }, // Contact Person
+      { wch: 15 }, // Phone
+      { wch: 25 }, // Email
+      { wch: 15 }, // Requested On
+      { wch: 30 }, // Remarks
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tender Requests");
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `tender_requests_${currentDate}.xlsx`);
+  };
 
   return (
     <>
@@ -53,6 +90,14 @@ export default function Page({ searchParams }: paramsProps) {
               title={`Tender Documents Request (${totalUsers})`}
               description="List of all tender documents request"
             />
+            <Button
+              onClick={downloadExcel}
+              className="flex items-center gap-2 bg-[#222222] text-white hover:bg-gray-700"
+              disabled={!tender?.mappings?.length}
+            >
+              <Download size={16} />
+              Export Excel
+            </Button>
           </div>
           <Separator />
           <div className="">
