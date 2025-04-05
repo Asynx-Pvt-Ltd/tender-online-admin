@@ -82,14 +82,14 @@ export default function Page({ searchParams }: paramsProps) {
         <Separator />
 
         {!isDataDeleted ? (
-          <ScrollArea className="h-[68vh]">
-            <DataTableTender
-              setSearch={setSearch}
-              search={search}
-              setTenderLength={setTenderLength}
-            />
-          </ScrollArea>
+          // <ScrollArea className="h-[68vh]">
+          <DataTableTender
+            setSearch={setSearch}
+            search={search}
+            setTenderLength={setTenderLength}
+          />
         ) : (
+          // </ScrollArea>
           <div className="mt-8 text-center text-gray-500">
             No tenders available. Add a new tender or restore data.
           </div>
