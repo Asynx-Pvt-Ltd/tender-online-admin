@@ -25,7 +25,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-import { Dot, Ban, Search, Filter, Calendar } from "lucide-react";
+import { Dot, Ban, Search, Filter, Calendar, Download } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 
 import SubscriptionCancel from "@/components/subscriptionCancel";
+import * as XLSX from "xlsx";
 
 const Page = () => {
   const [users, setUsers] = useState([]);
@@ -76,6 +77,7 @@ const Page = () => {
         }
 
         const data = await response.json();
+        console.log("===========================", data);
         setUsers(data || []);
         setLoading(false);
       } catch (error) {
@@ -142,6 +144,43 @@ const Page = () => {
     );
   }
 
+  const downloadExcel = () => {
+    if (!filteredUsers.length) return;
+
+    const excelData = filteredUsers.map((user) => ({
+      Name: user.name || "N/A",
+      "Client ID": user.clientId || "N/A",
+      Email: user.email || "N/A",
+      Plan: user.subscriptionAmount || "N/A",
+      "Subscription Status": user.paymentStatus || "N/A",
+      "Valid Until": user.subscriptionValidity
+        ? formatDate(user.subscriptionValidity)
+        : "N/A",
+      "Last Subscription Date": user.lastSubscriptionDate
+        ? formatDate(user.lastSubscriptionDate)
+        : "N/A",
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const columnWidths = [
+      { wch: 20 }, // Name
+      { wch: 15 }, // Client ID
+      { wch: 25 }, // Email
+      { wch: 10 }, // Plan
+      { wch: 18 }, // Subscription Status
+      { wch: 30 }, // Valid Until
+      { wch: 30 }, // Last Subscription Date
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Subscriptions");
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `subscriptions_${currentDate}.xlsx`);
+  };
+
   return (
     <div className="container mx-auto bg-white px-6 py-6 dark:bg-gray-900">
       <div className="mb-6">
@@ -204,6 +243,14 @@ const Page = () => {
             />
           </PopoverContent>
         </Popover>
+        <Button
+          onClick={downloadExcel}
+          className="flex items-center gap-2 bg-[#222222] text-white hover:bg-gray-700"
+          disabled={!filteredUsers.length}
+        >
+          <Download size={16} />
+          Download Excel
+        </Button>
       </div>
 
       <div className="rounded-lg bg-gray-50 shadow-md dark:bg-gray-800">
@@ -213,9 +260,11 @@ const Page = () => {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>ClientID</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead>Plan</TableHead>
                 <TableHead>Subscription Status</TableHead>
                 <TableHead>Valid Until</TableHead>
+                <TableHead>Last Subscription Date</TableHead>
                 <TableHead>Actions</TableHead>
                 <TableHead>Subscription History</TableHead>
               </TableRow>
@@ -228,6 +277,7 @@ const Page = () => {
                 >
                   <TableCell>{user.name || "N/A"}</TableCell>
                   <TableCell>{user.clientId || "N/A"}</TableCell>
+                  <TableCell>{user.email || "N/A"}</TableCell>
                   <TableCell>{user?.subscriptionAmount || "N/A"}</TableCell>
                   <TableCell>
                     <Badge
@@ -243,6 +293,11 @@ const Page = () => {
                     {user.subscriptionValidity
                       ? formatDate(user.subscriptionValidity)
                       : "N/A"}
+                  </TableCell>
+                  <TableCell>
+                    {user.lastSubscriptionDate
+                      ? formatDate(user.lastSubscriptionDate)
+                      : "NA"}
                   </TableCell>
 
                   <TableCell>

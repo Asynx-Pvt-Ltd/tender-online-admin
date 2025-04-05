@@ -30,9 +30,11 @@ import TenderColumns from "./tender-columns";
 import { toast } from "sonner";
 import { getTenderValueCategory } from "@/utils/utils";
 import { clear } from "console";
+import { Input } from "@/components/ui/input";
+import * as XLSX from "xlsx";
+import { Download } from "lucide-react";
 
 export function DataTableTender({ setSearch, search, setTenderLength }: any) {
-  const columns = TenderColumns();
   const [foryou, setForYou] = React.useState<any | null>(null);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -43,6 +45,7 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [selectedRowData, setSelectedRowData] = React.useState(null);
   const [selectedRow, setSelectedRow] = React.useState<any>([]);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -52,6 +55,21 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
       else setForYou(false);
     }
   }, []);
+  React.useEffect(() => {
+    if (searchQuery.trim()) {
+      setColumnFilters((prev) => [
+        ...prev.filter((filter) => filter.id !== "TenderId"),
+        {
+          id: "TenderId",
+          value: searchQuery,
+        },
+      ]);
+    } else {
+      setColumnFilters((prev) =>
+        prev.filter((filter) => filter.id !== "TenderId"),
+      );
+    }
+  }, [searchQuery]);
 
   const {
     districts,
@@ -140,6 +158,7 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
       return response.json();
     },
   });
+  const columns = TenderColumns({ refetchTenders: refetch });
 
   const clearFilters = useCallback(() => {
     // Reset all state variables to their initial values
@@ -154,8 +173,10 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
     refetch();
   }, [refetch]); // Add refetch to dependency array
 
-  const handleRowClick = useCallback((rowData: any) => {
-    setSelectedRowData(rowData);
+  const handleRowClick = useCallback((rowData: any, isActionClick: boolean) => {
+    if (!isActionClick) {
+      setSelectedRowData(rowData);
+    }
   }, []);
 
   const table = useReactTable({
@@ -257,6 +278,56 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
     }
   };
 
+  {
+    /* 
+  const downloadExcel = () => {
+    if (!tenders?.result?.length) return;
+
+    const excelData = tenders.result.map((tender: any) => ({
+      "Tender ID": tender.TenderId || "",
+      Title: tender.tenderName || "",
+      "Work Description": tender.WorkDescription || "",
+      Address: tender.address || "",
+      Department: tender.department || "",
+      District: tender.district || "",
+      "Due Date": tender.bidSubmissionDate
+        ? new Date(tender.bidSubmissionDate).toLocaleDateString()
+        : "",
+      "Published Date": tender.epublishedDate
+        ? new Date(tender.epublishedDate).toLocaleDateString()
+        : "",
+      "Tender Value": tender.tenderValue || "",
+      Classification: tender.classification || "",
+      Industry: tender.industry || "",
+      EMD: tender.EMDAmountin || "",
+    }));
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const columnWidths = [
+      { wch: 15 },
+      { wch: 40 },
+      { wch: 40 },
+      { wch: 30 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 15 },
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tenders");
+
+    const currentDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(workbook, `tenders_export_${currentDate}.xlsx`);
+  };*/
+  }
+
   return (
     <div className="w-full rounded-xl border">
       <div className="flex items-start justify-between px-2 py-2">
@@ -273,6 +344,22 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
       </div>
 
       <div className="w-full">
+        <div className="mb-4 ml-4 flex items-center gap-2">
+          <Input
+            placeholder="Search by Tender ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
+          />
+          {/* <Button
+            onClick={downloadExcel}
+            className="flex items-center gap-2 bg-[#222222] text-xs text-white hover:bg-gray-700"
+            disabled={!tenders?.result?.length}
+          >
+            <Download size={14} />
+            Export Excel
+          </Button> */}
+        </div>
         <ScrollArea>
           <Table>
             <TableHeader>
@@ -303,8 +390,11 @@ export function DataTableTender({ setSearch, search, setTenderLength }: any) {
                         key={cell.id}
                         className="font-roboto cursor-pointer"
                         onClick={() => {
-                          if (cell.column.columnDef.id !== "select") {
-                            handleRowClick(row.original);
+                          if (
+                            cell.column.columnDef.id !== "select" &&
+                            cell.column.columnDef.id !== "actions"
+                          ) {
+                            handleRowClick(row.original, false);
                           }
                         }}
                       >
