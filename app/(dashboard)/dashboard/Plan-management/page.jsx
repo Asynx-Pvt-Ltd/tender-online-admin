@@ -156,9 +156,6 @@ const Page = () => {
       "Valid Until": user.subscriptionValidity
         ? formatDate(user.subscriptionValidity)
         : "N/A",
-      "Last Subscription Date": user.lastSubscriptionDate
-        ? formatDate(user.lastSubscriptionDate)
-        : "N/A",
     }));
 
     const workbook = XLSX.utils.book_new();
@@ -171,7 +168,6 @@ const Page = () => {
       { wch: 10 }, // Plan
       { wch: 18 }, // Subscription Status
       { wch: 30 }, // Valid Until
-      { wch: 30 }, // Last Subscription Date
     ];
     worksheet["!cols"] = columnWidths;
 
@@ -264,8 +260,8 @@ const Page = () => {
                 <TableHead>Plan</TableHead>
                 <TableHead>Subscription Status</TableHead>
                 <TableHead>Valid Until</TableHead>
-                <TableHead>Last Subscription Date</TableHead>
-                <TableHead>Actions</TableHead>
+                {/* <TableHead>Last Subscription Date</TableHead> */}
+                {/* <TableHead>Actions</TableHead> */}
                 <TableHead>Subscription History</TableHead>
               </TableRow>
             </TableHeader>
@@ -294,13 +290,13 @@ const Page = () => {
                       ? formatDate(user.subscriptionValidity)
                       : "N/A"}
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     {user.lastSubscriptionDate
                       ? formatDate(user.lastSubscriptionDate)
                       : "NA"}
-                  </TableCell>
+                  </TableCell> */}
 
-                  <TableCell>
+                  {/* <TableCell>
                     {user.paymentStatus?.toLowerCase() === "active" && (
                       <div className="flex gap-2">
                         <SubscriptionCancel
@@ -308,7 +304,7 @@ const Page = () => {
                         />
                       </div>
                     )}
-                  </TableCell>
+                  </TableCell> */}
 
                   <TableCell>
                     {user.subscriptionHistory?.length > 0 ? (
